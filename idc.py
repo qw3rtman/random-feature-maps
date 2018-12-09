@@ -33,6 +33,8 @@ class IDCDataset:
                     self.data = np.concatenate([self.data, x[0]])
                     self.classes = np.concatenate([self.classes, x[1]])
                 except Exception as e:
+                    print(x[0])
+                    print(x[1])
                     pinfo.log(e)
 
         timer.stop(
@@ -42,9 +44,12 @@ class IDCDataset:
 
     def load_image(self, path):
 
-        features = feature.hog(
-            mpimg.imread(path),
-            block_norm='L1', feature_vector=True)
+        img = mpimg.imread(path)
+
+        if img.shape[0] != 50 or img.shape[1] != 50 or img.shape[2] != 3:
+            return None
+
+        features = feature.hog(img, block_norm='L1', feature_vector=True)
 
         if features.shape[0] != 1296:
             return None
@@ -58,7 +63,6 @@ class IDCDataset:
     def load_images(self, path, p=1):
 
         images = os.listdir(path)
-
         images = random.sample(images, math.ceil(len(images) * p))
 
         loaded = [self.load_image(os.path.join(path, img)) for img in images]
