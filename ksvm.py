@@ -25,6 +25,10 @@ def run(ptrain=0.01, ptest=0.1):
 
     ksvm = train(dataset)
     tester.loss(ksvm)
+
+    debugtester = ClassifyTest(dataset.data, dataset.classes)
+    debugtester.loss(ksvm)
+
     timer.stop("Program finished.")
 
 
@@ -32,4 +36,4 @@ if __name__ == "__main__":
     import sys
     from util import argparse
     args, kwargs = argparse(sys.argv[1:])
-    run(**kwargs)
+    run(ptrain=argparse["ptrain"], ptest=argparse["ptest"])

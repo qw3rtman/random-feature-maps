@@ -40,4 +40,7 @@ if __name__ == "__main__":
     import sys
     from util import argparse
     args, kwargs = argparse(sys.argv[1:])
-    run(**kwargs)
+    run(
+        ptrain=argparse["ptrain"],
+        ptest=argparse["ptest"],
+        fdim=argparse["fdim"])
