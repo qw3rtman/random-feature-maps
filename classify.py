@@ -30,4 +30,23 @@ class ClassifyTest:
                 i=int(self.labels.shape[0] - incorrect),
                 pc=100 - incorrect / self.labels.shape[0] * 100))
 
+        fp, fn, tp, tn = [0, 0, 0, 0]
+        for i, j in zip(predicted, self.labels):
+            if i == 0 and j == 0:
+                tn += 1
+            if i == 1 and j == 1:
+                tp += 1
+            if i == 0 and j == 1:
+                fn += 1
+            if i == 1 and j == 0:
+                fp += 1
+        pinfo.log(
+            "False positive: {i}".format(i=fp))
+        pinfo.log(
+            "False negative: {i}".format(i=fn))
+        pinfo.log(
+            "True positive: {i}".format(i=tp))
+        pinfo.log(
+            "True negative: {i}".format(i=tn))
+
         timer.stop("{n} tests run".format(n=self.labels.shape[0]))

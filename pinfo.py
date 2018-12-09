@@ -17,7 +17,14 @@ def log(msg, tier=None):
     if tier is None:
         global TIER
         tier = TIER
-    print(base(tier) + str(msg))
+    try:
+        if issubclass(msg, Exception):
+            msg = "[Error]" + str(msg)
+        else:
+            msg = str(msg)
+    except TypeError:
+        msg = str(msg)
+    print(base(tier) + msg)
 
 
 class Task:

@@ -19,7 +19,7 @@ def train(dataset):
 def run(ptrain=0.01, ptest=0.1):
 
     timer = pinfo.Task("Random Fourier Feature Support Vector Classifier")
-    rff = RandomFourierFeature(1296, 7500)
+    rff = RandomFourierFeature(1296, 10000)
 
     dataset = idc.IDCDataset(
         idc.PATIENTS[:-25], p=ptrain, transform=rff.transform)
