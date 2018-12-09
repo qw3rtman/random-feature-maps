@@ -4,6 +4,7 @@ import math
 import random
 import numpy as np
 import matplotlib.image as mpimg
+from skimage import feature
 
 import pinfo
 
@@ -24,8 +25,14 @@ class IDCDataset:
         pool = Pool(cores)
         loaded = pool.map(partial(self.load_patient, p=p), patients)
 
-        self.data = np.concatenate([x[0] for x in loaded if x is not None])
-        self.classes = np.concatenate([x[1] for x in loaded if x is not None])
+        self.data = loaded[0][0]
+        self.classes = loaded[0][1]
+        for x in loaded[1:]:
+            try:
+                self.data = np.concatenate([self.data, x[0]])
+                self.classes = np.concatenate([self.classes, x[1]])
+            except Exception as e:
+                pinfo.log(e)
 
         timer.stop(
             "{n} images ({p}%) sampled from {k} patients"
@@ -33,11 +40,17 @@ class IDCDataset:
             self.data, self.classes)
 
     def load_image(self, path):
-        img = mpimg.imread(path).reshape([1, -1])[0]
-        if img.shape[0] != 7500:
+
+        features = feature.hog(
+            mpimg.imread(path),
+            block_norm='L1', feature_vector=True)
+
+        if features.shape[0] != 1296:
             return None
         try:
-            return img if self.transform is None else self.transform(img)
+            return (
+                features if self.transform is None
+                else self.transform(features))
         except ValueError:
             return None
 

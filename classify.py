@@ -19,12 +19,12 @@ class ClassifyTest:
             predicted = model.predict(self.data)
 
         incorrect = np.linalg.norm(predicted - self.labels, ord=0)
-        print(
+        pinfo.log(
             "Incorrect labels: {i} ({perr:.1f}%)"
             .format(
                 i=int(incorrect),
                 perr=incorrect / self.labels.shape[0] * 100))
-        print(
+        pinfo.log(
             "Correct labels: {i} ({pc:.1f})%"
             .format(
                 i=int(self.labels.shape[0] - incorrect),

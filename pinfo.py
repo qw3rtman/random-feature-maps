@@ -6,6 +6,20 @@ import sys
 TIER = 0
 
 
+def base(tier):
+    return(
+        (" " * 4 * (tier - 1) if tier > 1 else "") +
+        ("  | " if tier > 0 else "")
+    )
+
+
+def log(msg, tier=None):
+    if tier is None:
+        global TIER
+        tier = TIER
+    print(base(tier) + str(msg))
+
+
 class Task:
 
     def __init__(self, label=None, tier=None):
@@ -17,7 +31,7 @@ class Task:
         TIER += 1
 
         if label is not None:
-            print(self.__base() + label)
+            print(base(self.tier) + label)
 
     def __base(self):
         return(
@@ -31,17 +45,17 @@ class Task:
         for obj in objects:
             self.size += sys.getsizeof(obj)
 
-        base = self.__base()
+        b = base(self.tier)
 
         if len(objects) == 0:
             print(
                 "{b}[{t:.2f}s] {label}"
-                .format(b=base, t=self.duration, label=label))
+                .format(b=b, t=self.duration, label=label))
         else:
             print(
                 "{b}[{t:.2f}s | {s:.2f}MB] {label}"
                 .format(
-                    b=base, t=self.duration,
+                    b=b, t=self.duration,
                     label=label, s=self.size / 10**6))
 
         global TIER
