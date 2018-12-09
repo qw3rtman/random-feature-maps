@@ -8,19 +8,19 @@ import pinfo
 
 def train(dataset):
     timer = pinfo.Task()
-    ksvm = SVC()
+    ksvm = SVC(gamma='auto')
     ksvm.fit(dataset.data, dataset.classes)
     timer.stop("Kernel SVM Computed", ksvm)
 
     return ksvm
 
 
-def run(ptrain=0.01, ptest=0.1):
+def run(ptrain=0.01, ptest=0.1, ntrain=-25, ntest=25):
 
     timer = pinfo.Task("Kernel SVM")
 
-    dataset = idc.IDCDataset(idc.PATIENTS[:-25], p=ptrain)
-    test_dataset = idc.IDCDataset(idc.PATIENTS[-25:], p=ptest)
+    dataset = idc.IDCDataset(idc.PATIENTS[:int(ntrain)], p=float(ptrain))
+    test_dataset = idc.IDCDataset(idc.PATIENTS[-int(ntest):], p=float(ptest))
     tester = ClassifyTest(test_dataset.data, test_dataset.classes)
 
     ksvm = train(dataset)
@@ -36,5 +36,4 @@ if __name__ == "__main__":
     import sys
     from util import argparse
     args, kwargs = argparse(sys.argv[1:])
-    print(kwargs)
-    run(ptrain=float(kwargs["ptrain"]), ptest=float(kwargs["ptest"]))
+    run(**kwargs)

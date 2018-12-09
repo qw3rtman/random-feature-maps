@@ -1,5 +1,6 @@
 
 from sklearn.svm import LinearSVC
+from skimage import feature
 
 import idc
 from classify import ClassifyTest
@@ -16,15 +17,17 @@ def train(dataset):
     return rfsvm
 
 
-def run(ptrain=0.01, ptest=0.1, fdim=10000):
+def run(ptrain=0.01, ptest=0.1, fdim=10000, ntrain=-25, ntest=25):
 
     timer = pinfo.Task("Random Fourier Feature Support Vector Classifier")
-    rff = RandomFourierFeature(1296, fdim)
+    rff = RandomFourierFeature(1296, int(fdim))
 
     dataset = idc.IDCDataset(
-        idc.PATIENTS[:-25], p=ptrain, transform=rff.transform)
+        idc.PATIENTS[:int(ntrain)],
+        p=float(ptrain), feature=feature.hog, transform=rff.transform)
     test_dataset = idc.IDCDataset(
-        idc.PATIENTS[-25:], p=ptest, transform=rff.transform)
+        idc.PATIENTS[-int(ntest):],
+        p=float(ptest), feature=feature.hog, transform=rff.transform)
     tester = ClassifyTest(test_dataset.data, test_dataset.classes)
 
     rfsvm = train(dataset)
@@ -40,7 +43,4 @@ if __name__ == "__main__":
     import sys
     from util import argparse
     args, kwargs = argparse(sys.argv[1:])
-    run(
-        ptrain=float(kwargs["ptrain"]),
-        ptest=float(kwargs["ptest"]),
-        fdim=int(kwargs["fdim"]))
+    run(**kwargs)

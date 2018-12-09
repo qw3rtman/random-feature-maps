@@ -4,7 +4,6 @@ import math
 import random
 import numpy as np
 import matplotlib.image as mpimg
-from skimage import feature
 
 import pinfo
 
@@ -17,8 +16,12 @@ PATIENTS = os.listdir(BASE_PATH)
 
 class IDCDataset:
 
-    def __init__(self, patients, transform=None, cores=None, p=1):
+    def __init__(
+            self, patients,
+            feature=None, transform=None, cores=None, p=1):
+
         self.transform = transform
+        self.feature = feature
 
         timer = pinfo.Task(label="Loading Images...")
 
@@ -49,14 +52,15 @@ class IDCDataset:
         if img.shape[0] != 50 or img.shape[1] != 50 or img.shape[2] != 3:
             return None
 
-        features = feature.hog(img, block_norm='L1', feature_vector=True)
+        if self.feature is not None:
+            img = self.feature(img, block_norm='L1', feature_vector=True)
+        else:
+            img = img.reshape([-1])
 
-        if features.shape[0] != 1296:
-            return None
         try:
             return (
-                features if self.transform is None
-                else self.transform(features))
+                img if self.transform is None
+                else self.transform(img))
         except ValueError:
             return None
 
