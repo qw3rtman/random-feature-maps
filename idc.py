@@ -28,11 +28,12 @@ class IDCDataset:
         self.data = loaded[0][0]
         self.classes = loaded[0][1]
         for x in loaded[1:]:
-            try:
-                self.data = np.concatenate([self.data, x[0]])
-                self.classes = np.concatenate([self.classes, x[1]])
-            except Exception as e:
-                pinfo.log(e)
+            if x[0] is not None and x[1] is not None:
+                try:
+                    self.data = np.concatenate([self.data, x[0]])
+                    self.classes = np.concatenate([self.classes, x[1]])
+                except Exception as e:
+                    pinfo.log(e)
 
         timer.stop(
             "{n} images ({p}%) sampled from {k} patients"

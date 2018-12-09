@@ -29,6 +29,10 @@ def run(ptrain=0.01, ptest=0.1):
 
     rfsvm = train(dataset)
     tester.loss(rfsvm)
+
+    debugtester = ClassifyTest(dataset.data, dataset.classes)
+    debugtester.loss(rfsvm)
+
     timer.stop("Program finished.")
 
 
