@@ -4,6 +4,7 @@ import math
 import random
 import numpy as np
 import matplotlib.image as mpimg
+from skimage import color
 
 import pinfo
 
@@ -28,6 +29,8 @@ class IDCDataset:
         pool = Pool(cores)
         loaded = pool.map(partial(self.load_patient, p=p), patients)
 
+        pinfo.log("Combining thread results...")
+
         self.data = loaded[0][0]
         self.classes = loaded[0][1]
         for x in loaded[1:]:
@@ -47,7 +50,7 @@ class IDCDataset:
 
     def load_image(self, path):
 
-        img = mpimg.imread(path)
+        img = color.rgb2hsv(mpimg.imread(path))
 
         if img.shape[0] != 50 or img.shape[1] != 50 or img.shape[2] != 3:
             return None
