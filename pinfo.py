@@ -8,12 +8,12 @@ TIER = 0
 
 class Task:
 
-    def __init__(self, label=None):
+    def __init__(self, label=None, tier=None):
         self.start = time.time()
         self.size = 0
 
         global TIER
-        self.tier = TIER
+        self.tier = tier if tier is not None else TIER
         TIER += 1
 
         if label is not None:
