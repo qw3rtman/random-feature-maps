@@ -30,4 +30,6 @@ def run(ptrain=0.01, ptest=0.1):
 
 if __name__ == "__main__":
     import sys
-    run(float(sys.argv[1]), float(sys.argv[2]))
+    from util import argparse
+    args, kwargs = argparse(sys.argv[1:])
+    run(**kwargs)

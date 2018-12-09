@@ -16,10 +16,10 @@ def train(dataset):
     return rfsvm
 
 
-def run(ptrain=0.01, ptest=0.1):
+def run(ptrain=0.01, ptest=0.1, fdim=10000):
 
     timer = pinfo.Task("Random Fourier Feature Support Vector Classifier")
-    rff = RandomFourierFeature(1296, 20000)
+    rff = RandomFourierFeature(1296, fdim)
 
     dataset = idc.IDCDataset(
         idc.PATIENTS[:-25], p=ptrain, transform=rff.transform)
@@ -38,5 +38,6 @@ def run(ptrain=0.01, ptest=0.1):
 
 if __name__ == "__main__":
     import sys
-
-    run(float(sys.argv[1]), float(sys.argv[2]))
+    from util import argparse
+    args, kwargs = argparse(sys.argv[1:])
+    run(**kwargs)
