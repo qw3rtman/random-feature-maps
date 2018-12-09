@@ -41,6 +41,6 @@ if __name__ == "__main__":
     from util import argparse
     args, kwargs = argparse(sys.argv[1:])
     run(
-        ptrain=argparse["ptrain"],
-        ptest=argparse["ptest"],
-        fdim=argparse["fdim"])
+        ptrain=float(kwargs["ptrain"]),
+        ptest=float(kwargs["ptest"]),
+        fdim=int(kwargs["fdim"]))
