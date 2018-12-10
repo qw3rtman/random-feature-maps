@@ -46,13 +46,22 @@ class RandomBinningFeature:
 
     def transform(self, x):
 
-        return np.array([
-            (sum([
-                math.ceil((x_i - mu) / delta)
-                for x_i, mu, delta in zip(x, mu_p, delta_p)
-            ]) % 2**16) / 2**16
-            for mu_p, delta_p in zip(self.mu, self.delta)],
-            dtype=np.float32)
+        ret = []
+        for mu_p, delta_p in zip(self.mu, self.delta):
+            tmp = [0 for i in range(128)]
+            for x_i, mu, delta in zip(x, mu_p, delta_p):
+                tmp[math.ceil((x_i - mu) / delta) % 128] += 1
+            ret += tmp
+
+        return np.array(ret, dtype=np.uint8)
+
+        #return np.array([
+        #    (sum([
+        #        1 >> math.ceil((x_i - mu) / delta)
+        #        for x_i, mu, delta in zip(x, mu_p, delta_p)
+        #    ]) % 2**32)
+        #    for mu_p, delta_p in zip(self.mu, self.delta)],
+        #    dtype=np.uint32)
 
     def __str__(self):
         return (
