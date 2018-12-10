@@ -56,4 +56,4 @@ class ClassifyTest:
     def save(self):
 
         with open('results.txt', 'w') as file:
-            file.writelines("\n".join(self.stats))
+            file.writelines("\n".join([str(x) for x in self.stats]))
