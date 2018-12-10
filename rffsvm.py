@@ -6,7 +6,7 @@ import idc
 from classify import ClassifyTest
 from rff import RandomFourierFeature
 import pinfo
-import ckm
+from ckm import get_idc_colors
 
 
 def train(dataset):
@@ -18,10 +18,11 @@ def train(dataset):
     return rfsvm
 
 
-def run(ptrain=0.01, ptest=0.1, fdim=10000, ntrain=-25, ntest=25):
+def run(ptrain=0.01, ptest=0.1, fdim=10000, ntrain=-25, ntest=25, n=20):
 
     timer = pinfo.Task("Random Fourier Feature Support Vector Classifier")
-    rff = RandomFourierFeature(20, int(fdim))
+    rff = RandomFourierFeature(int(n), int(fdim))
+    ckm = get_idc_colors(int(n))
 
     dataset = idc.IDCDataset(
         idc.PATIENTS[:int(ntrain)],
