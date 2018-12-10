@@ -20,22 +20,20 @@ def laplacian(x):
 
 class RandomBinningFeature:
 
-    def __init__(self):
-        pass
-
-    def __init_new(self, n, P):
+    def __init__(self, n, P):
 
         self.n = n
         self.P = P
 
-        timer = pinfo.Task()
-        self.delta = [
+        timer = pinfo.Task("Creating Random Binning Feature...")
+        self.delta = np.array([
             [sample(laplacian, 1 / math.e) for j in range(n)]
             for i in range(P)
-        ]
-        self.mu = [
+        ], dtype=np.float32)
+
+        self.mu = np.array([
             [np.random.uniform(0, delta_m) for delta_m in delta_p]
-            for delta_p in self.delta]
+            for delta_p in self.delta], dtype=np.float32)
         timer.stop(
             "{desc} created"
             .format(desc=self.__str__()), self.delta, self.mu)
