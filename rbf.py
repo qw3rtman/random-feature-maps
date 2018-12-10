@@ -53,9 +53,9 @@ class RandomBinningFeature:
                 tmp[math.ceil((x_i - mu) / delta) % 128] += 1
             ret += tmp
 
-        return np.array(ret, dtype=np.uint8)
+        return 1 / np.sqrt(self.P) * np.array(ret, dtype=np.uint8)
 
-        #return np.array([
+        #  return np.array([
         #    (sum([
         #        1 >> math.ceil((x_i - mu) / delta)
         #        for x_i, mu, delta in zip(x, mu_p, delta_p)
