@@ -52,4 +52,4 @@ class ClassifyTest:
         timer.stop("{n} tests run".format(n=self.labels.shape[0]))
 
         with open('results.txt', 'w') as file:
-            file.writelines(str(fp), str(fn), str(tp), str(tn))
+            file.writelines("\n".join([str(fp), str(fn), str(tp), str(tn)]))
