@@ -4,6 +4,8 @@ import math
 import numpy as np
 import pinfo
 
+from multiprocessing import Pool
+
 
 def sample(pdf, pdfmax):
 
@@ -20,23 +22,27 @@ def laplacian(x):
 
 class RandomBinningFeature:
 
-    def __init__(self, n, P):
+    def __init__(self, n, P, cores=None):
 
         self.n = n
         self.P = P
 
         timer = pinfo.Task("Creating Random Binning Feature...")
-        self.delta = np.array([
-            [sample(laplacian, 1 / math.e) for j in range(n)]
-            for i in range(P)
-        ], dtype=np.float32)
 
-        self.mu = np.array([
-            [np.random.uniform(0, delta_m) for delta_m in delta_p]
-            for delta_p in self.delta], dtype=np.float32)
+        p = Pool(cores)
+        gen = p.map(self.get_p_set, [n for _ in range(P)])
+
+        self.delta = np.array([x[0] for x in gen], dtype=np.float32)
+        self.mu = np.array([x[1] for x in gen], dtype=np.float32)
+
         timer.stop(
             "{desc} created"
             .format(desc=self.__str__()), self.delta, self.mu)
+
+    def get_p_set(self, n):
+        delta_p = [sample(laplacian, 1 / math.e) for _ in range(n)]
+        mu_p = [np.random.uniform(0, delta_m) for delta_m in delta_p]
+        return (delta_p, mu_p)
 
     def transform(self, x):
 
