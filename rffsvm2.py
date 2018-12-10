@@ -3,9 +3,8 @@ from sklearn.svm import LinearSVC
 
 import idc
 from classify import ClassifyTest
-from rbf import RandomBinningFeature
+from rff import RandomFourierFeature
 import pinfo
-from ckm import get_idc_colors
 
 
 def train(dataset):
@@ -20,15 +19,14 @@ def train(dataset):
 def run(ptrain=0.01, ptest=0.1, fdim=10000, ntrain=-25, ntest=25, n=20):
 
     timer = pinfo.Task("Random Fourier Feature Support Vector Classifier")
-    rbf = RandomBinningFeature(7500, int(fdim))
-    ckm = get_idc_colors(int(n))
+    rff = RandomFourierFeature(int(n), int(fdim))
 
     dataset = idc.IDCDataset(
         idc.PATIENTS[:int(ntrain)],
-        p=float(ptrain), feature=ckm.map, transform=rbf.transform)
+        p=float(ptrain), transform=rff.transform)
     test_dataset = idc.IDCDataset(
         idc.PATIENTS[-int(ntest):],
-        p=float(ptest), feature=ckm.map, transform=rbf.transform)
+        p=float(ptest), transform=rff.transform)
     tester = ClassifyTest(test_dataset.data, test_dataset.classes)
 
     rfsvm = train(dataset)
