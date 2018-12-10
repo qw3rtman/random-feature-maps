@@ -38,6 +38,7 @@ def run(ptrain=0.01, ptest=0.1, fdim=10000, ntrain=-25, ntest=25):
 
     rfsvm = train(dataset)
     tester.loss(rfsvm)
+    tester.save()
 
     debugtester = ClassifyTest(dataset.data, dataset.classes)
     debugtester.loss(rfsvm)

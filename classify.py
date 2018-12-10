@@ -49,7 +49,11 @@ class ClassifyTest:
         pinfo.log(
             "True negative: {i}".format(i=tn))
 
+        self.stats = [fp, fn, tp, tn]
+
         timer.stop("{n} tests run".format(n=self.labels.shape[0]))
 
+    def save(self):
+
         with open('results.txt', 'w') as file:
-            file.writelines("\n".join([str(fp), str(fn), str(tp), str(tn)]))
+            file.writelines("\n".join(self.stats))
