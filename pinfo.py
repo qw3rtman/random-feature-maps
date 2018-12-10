@@ -7,10 +7,7 @@ TIER = 0
 
 
 def base(tier):
-    return(
-        (" " * 4 * (tier - 1) if tier > 1 else "") +
-        ("  | " if tier > 0 else "")
-    )
+    return("  | " * tier)
 
 
 def log(msg, tier=None):

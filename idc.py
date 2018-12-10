@@ -4,7 +4,6 @@ import math
 import random
 import numpy as np
 import matplotlib.image as mpimg
-from skimage import color
 
 import pinfo
 
@@ -50,13 +49,13 @@ class IDCDataset:
 
     def load_image(self, path):
 
-        img = color.rgb2hsv(mpimg.imread(path))
+        img = mpimg.imread(path)
 
         if img.shape[0] != 50 or img.shape[1] != 50 or img.shape[2] != 3:
             return None
 
         if self.feature is not None:
-            img = self.feature(img, block_norm='L1', feature_vector=True)
+            img = self.feature(img)
         else:
             img = img.reshape([-1])
 
