@@ -1,11 +1,13 @@
 
 from sklearn.svm import LinearSVC
 
+from skimage.transform import rescale
+from skimage.color import hsv2rgb
+
 import idc
 from classify import ClassifyTest
 from rff import RandomFourierFeature
 import pinfo
-from ckm import get_idc_colors
 
 
 def train(dataset):
@@ -17,18 +19,22 @@ def train(dataset):
     return rfsvm
 
 
-def run(ptrain=0.01, ptest=0.1, fdim=10000, ntrain=-25, ntest=25, n=20):
+def downscale(img):
+    img = hsv2rgb(rescale(img, 0.5, anti_aliasing=False))
+    return img.reshape([-1])
+
+
+def run(ptrain=0.01, ptest=0.1, fdim=10000, ntrain=-25, ntest=25):
 
     timer = pinfo.Task("Random Fourier Feature Support Vector Classifier")
-    rff = RandomFourierFeature(int(n), int(fdim))
-    ckm = get_idc_colors(int(n))
+    rff = RandomFourierFeature(1875, int(fdim))
 
     dataset = idc.IDCDataset(
         idc.PATIENTS[:int(ntrain)],
-        p=float(ptrain), feature=ckm.map, transform=rff.transform)
+        p=float(ptrain), feature=downscale, transform=rff.transform)
     test_dataset = idc.IDCDataset(
         idc.PATIENTS[-int(ntest):],
-        p=float(ptest), feature=ckm.map, transform=rff.transform)
+        p=float(ptest), feature=downscale, transform=rff.transform)
     tester = ClassifyTest(test_dataset.data, test_dataset.classes)
 
     rfsvm = train(dataset)
