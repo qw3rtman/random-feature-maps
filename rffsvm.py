@@ -17,10 +17,10 @@ def train(dataset):
     return rfsvm
 
 
-def run(ptrain=0.01, ptest=0.1, fdim=10000, ntrain=-25, ntest=25, n=20):
+def run(ptrain=0.01, ptest=0.1, fdim=10000, ntrain=-25, ntest=25, n=20, kernel="G"):
 
     timer = pinfo.Task("Random Fourier Feature Support Vector Classifier")
-    rff = RandomFourierFeature(int(n), int(fdim))
+    rff = RandomFourierFeature(int(n), int(fdim), kernel)
     ckm = get_idc_colors(int(n))
 
     dataset = idc.IDCDataset(
