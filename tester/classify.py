@@ -134,4 +134,4 @@ class ClassifyTest:
         task.done('Done running tests.')
         task.info(
             'Time per test: {t}s'
-            .format(s=task.runtime() / self.error.total))
+            .format(s=task.runtime() / self.error['total']))
