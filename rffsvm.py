@@ -52,11 +52,11 @@ def run(
         kernel='G', task=main.subtask("RFF"))
 
     params = {'p': float(ptrain), 'transform': rff.transform}
-    """
+
     if knn:
         ckm = get_idc_colors(int(n))
         params['feature'] = ckm.map
-    """
+
     # Load datasets
     dataset = IDCDataset(
         PATIENTS[:int(ntrain)],
@@ -72,7 +72,7 @@ def run(
     debugtester = ClassifyTest(
         dataset.data, dataset.classes,
         'Classification verification on training data')
-    """
+
     # Train model
     rfsvm = train(dataset)
 
@@ -83,7 +83,6 @@ def run(
     debugtester.loss(rfsvm, task=manager)
 
     manager.done("Program finished.")
-    """
 
 
 if __name__ == "__main__":
