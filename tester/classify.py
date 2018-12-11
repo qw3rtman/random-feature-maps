@@ -113,7 +113,7 @@ class ClassifyTest:
 
         if task is not None:
             task = Task()
-        task.reset()
+        task.reset(name='Classification Test', desc=self.desc)
         task.set_info(name='Classification Test', desc=self.desc)
 
         # Predict

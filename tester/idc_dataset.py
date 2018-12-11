@@ -15,8 +15,7 @@ BASE_PATH = os.path.join(os.getcwd(), 'IDC_regular_ps50_idx5')
 PATIENTS = os.listdir(BASE_PATH)
 
 
-def reducer(args):
-    data, task = args
+def reducer(data, task=None):
 
     d = data[0][0]
     c = data[0][1]
@@ -25,7 +24,8 @@ def reducer(args):
             d = np.concatenate([d, i])
             c = np.concatenate([c, j])
         except Exception as e:
-            task.error('Failed to concatenate input data: ' + str(e))
+            if task is not None:
+                task.error('Failed to concatenate input data: ' + str(e))
 
     return (d, c)
 
@@ -56,9 +56,8 @@ class IDCDataset:
 
         if task is not None:
             task = Task()
-        task.reset()
+        task.reset(name='IDC Dataset', desc='Loading Images...')
         task.set_info(name='IDC Dataset', desc='Loading Images...')
-        task.info('Loading images...')
 
         self.data, self.classes = task.pool(
             partial(self.load_patient, p=p), patients,
@@ -123,17 +122,19 @@ class IDCDataset:
         loaded = [self.load_image(os.path.join(path, img)) for img in images]
         return np.array([x for x in loaded if x is not None])
 
-    def load_patient(self, args, p=1):
+    def load_patient(self, patient, task=None, p=1):
         """Load a patient
 
         Parameters
         ----------
-        args : (str, Task)
-            [0] Target patient ID
-            [1] Task to register under
+        patient : str
+            patient to load
+        task : Task
+            task to register under
         """
 
-        patient, task = args
+        if task is None:
+            task = Task()
         task.reset()
         task.set_info(
             name='Patient Loader',
