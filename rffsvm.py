@@ -32,6 +32,7 @@ def run(
     div.div(
         '- -', BOLD,
         label='Random Fourier Feature Support Vector Classifier')
+
     table.table(list(map(list, zip(*[
         ['ptrain', ptrain],
         ['ptest', ptest],
@@ -74,7 +75,7 @@ def run(
         'Classification verification on training data')
 
     # Train model
-    rfsvm = train(dataset)
+    rfsvm = train(dataset, main.subtask())
 
     # Tester
     tester.loss(rfsvm, task=manager)
@@ -88,5 +89,7 @@ def run(
 if __name__ == "__main__":
     import sys
     from util import argparse
+
+    putil.LOG_FILE = 'results_' + sys.argv[1:].join('_') + '.txt'
     args, kwargs = argparse(sys.argv[1:])
     run(**kwargs)
