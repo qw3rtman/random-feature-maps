@@ -90,6 +90,6 @@ if __name__ == "__main__":
     import sys
     from util import argparse
 
-    putil.LOG_FILE = 'results_' + ' '.join(sys.argv[1:]) + '.txt'
+    putil.LOG_FILE = 'results_' + '_'.join(sys.argv[1:]) + '.txt'
     args, kwargs = argparse(sys.argv[1:])
     run(**kwargs)
