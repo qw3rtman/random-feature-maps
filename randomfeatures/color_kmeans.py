@@ -3,7 +3,6 @@
 import numpy as np
 import random
 from sklearn.cluster import KMeans
-import idc
 from syllabus import Task
 
 
@@ -73,20 +72,3 @@ class CKM:
         for p in img:
             fvec[self.cluster(p)] += 1
         return fvec
-
-
-def get_idc_colors(k):
-    """Estimate the k-best colors for the IDC dataset by sampling 1% of the
-    dataset.
-
-    Parameters
-    ----------
-    k : int
-        Number of colors
-
-    Returns
-    -------
-    CKM
-        Color K Means classifier
-    """
-    return CKM(k, idc.IDCDataset(idc.PATIENTS, p=0.01))

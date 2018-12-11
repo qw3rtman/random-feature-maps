@@ -10,7 +10,7 @@ def ft_gaussian(x):
 
 def ft_laplacian(x):
     """FT of laplacian, normalized so that max_x pdf(x) = 1"""
-    return np.prod(np.asarray([1 + x_i ** 2] for x_i in x))
+    return np.prod(np.asarray([1 + x_i ** 2 for x_i in x]))
 
 
 def ft_cauchy(x):

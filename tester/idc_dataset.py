@@ -54,14 +54,14 @@ class IDCDataset:
         self.transform = transform
         self.feature = feature
 
-        if task is not None:
+        if task is None:
             task = Task()
         task.reset(name='IDC Dataset', desc='Loading Images...')
         task.set_info(name='IDC Dataset', desc='Loading Images...')
 
         self.data, self.classes = task.pool(
             partial(self.load_patient, p=p), patients,
-            reducer=reducer, name='Image Loader',
+            reducer=reducer, name='Image Loader', recursive=False,
             cores=cores)
 
         task.done(

@@ -5,15 +5,32 @@ from sklearn.svm import LinearSVC
 
 from syllabus import Task
 
-from randomfeatures import RandomFourierFeature
+from randomfeatures import RandomFourierFeature, RandomBinningFeature, CKM
 from tester import ClassifyTest, IDCDataset, PATIENTS
 import multiprocessing
+
+
+def get_idc_colors(k):
+    """Estimate the k-best colors for the IDC dataset by sampling 1% of the
+    dataset.
+
+    Parameters
+    ----------
+    k : int
+        Number of colors
+
+    Returns
+    -------
+    CKM
+        Color K Means classifier
+    """
+    return CKM(k, IDCDataset(PATIENTS, p=0.01))
 
 
 def train(dataset, task):
 
     task.reset()
-    task.set_info(name="RFF SVC", desc="Computing RFF SVC Classifier")
+    task.set_info(name="RF SVC", desc="Computing RF SVC Classifier")
 
     rfsvm = LinearSVC()
     rfsvm.fit(dataset.data, dataset.classes)
@@ -25,14 +42,14 @@ def train(dataset, task):
 
 def run(
         ptrain=0.01, ptest=0.1,
-        fdim=10000,
+        fdim=5000,
         ntrain=-25, ntest=25,
         n=20, knn=False,
-        kernel="G", cores=None):
+        kernel="G", cores=None, ftype='F'):
 
     div.div(
         '- -', BOLD,
-        label='Random Fourier Feature Support Vector Classifier')
+        label='Random Feature Support Vector Classifier')
 
     print('\n')
     div.div('-', BR + BLUE, label='Parameters')
@@ -48,7 +65,8 @@ def run(
         [
             'cores', cores,
             'Number of processes (cores) to use ({n} available)'
-            .format(n=multiprocessing.cpu_count())]
+            .format(n=multiprocessing.cpu_count())],
+        ['ftype', ftype, 'type of feature to use ("F" or "B")']
     ]
     table.table(params, padding=' ' * 4)
     print('\n\n')
@@ -56,16 +74,24 @@ def run(
     div.div('-', BR + BLUE, label='Main Program')
 
     main = Task(
-        name='RFF',
-        desc="Random Fourier Feature Support Vector Classifier")
+        name='RF',
+        desc="Random Feature Support Vector Classifier")
 
-    rff = RandomFourierFeature(
-        7500 if bool(knn) is False else int(n), int(fdim),
-        kernel='G', task=main.subtask("RFF"))
+    if ftype == 'F':
+        rf = RandomFourierFeature(
+            7500 if bool(knn) is False else int(n), int(fdim),
+            kernel='G', task=main.subtask("RFF"))
+    elif ftype == 'B':
+        rf = RandomBinningFeature(
+            7500 if bool(knn) is False else int(n), int(fdim),
+            task=main.subtask("RFF"),
+            cores=None if cores is None else int(cores))
+    else:
+        raise Exception("Unknown feature type")
 
     params = {
         'p': float(ptrain),
-        'transform': rff.transform,
+        'transform': rf.transform,
         'cores': None if cores is None else int(cores)
     }
 

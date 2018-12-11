@@ -66,7 +66,7 @@ class RandomFourierFeature:
             self.W = np.reshape(
                 np.array([
                     sample(KERNELS[self.kernel], self.d)
-                    for _ in range(self.D)]),
+                    for _ in range(self.D)], dtype=np.float32),
                 (self.D, self.d))
 
     def transform(self, x):

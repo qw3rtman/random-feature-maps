@@ -7,6 +7,31 @@ from syllabus import Task
 from .sample import sample, ft_laplacian
 
 
+def get_p_set(n, task=None):
+    """Generate one set of deltas (bin width) and mus (bin offset)
+
+    Parameters
+    ----------
+    n : int
+        Number of dimensions
+    task : Task
+        task parent
+
+    Returns
+    -------
+    (np.array, np.array)
+        [0] delta vector for this feature
+        [1] mu vector for this feature
+    """
+
+    delta_p = sample(ft_laplacian, n)
+    mu_p = [np.random.uniform(0, delta_m) for delta_m in delta_p]
+
+    if task is not None:
+        task.done('', silent=True)
+    return (delta_p, mu_p)
+
+
 class RandomBinningFeature:
     """Random Binning Feature
 
@@ -29,33 +54,10 @@ class RandomBinningFeature:
 
         if task is None:
             task = Task()
-        task.reset()
+        task.reset(name='Random Binning Feature', desc=self.__str__())
         task.set_info(name='Random Binning Feature', desc=self.__str__())
 
-        def get_p_set(args):
-            """Generate one set of deltas (bin width) and mus (bin offset)
-
-            Parameters
-            ----------
-            args : (int, Task)
-                [0] Number of dimensions
-                [1] Task parent
-
-            Returns
-            -------
-            (np.array, np.array)
-                [0] delta vector for this feature
-                [1] mu vecotr for this feature
-            """
-            n, task = args
-
-            delta_p = sample(ft_laplacian, n)
-            mu_p = [np.random.uniform(0, delta_m) for delta_m in delta_p]
-
-            task.done('', slient=True)
-            return (delta_p, mu_p)
-
-        gen = task.pool(self.get_p_set, [d for _ in range(D)])
+        gen = task.pool(get_p_set, [d for _ in range(D)], cores=cores)
 
         self.delta = np.array([x[0] for x in gen], dtype=np.float32)
         self.mu = np.array([x[1] for x in gen], dtype=np.float32)
