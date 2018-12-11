@@ -1,0 +1,6 @@
+[submodule "tools/print"]
+	path = tools/print
+	url = https://github.com/thetianshuhuang/print
+[submodule "tools/syllabus"]
+	path = tools/syllabus
+	url = https://github.com/thetianshuhuang/syllabus
