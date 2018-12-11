@@ -1,44 +1,89 @@
 
+from print import *
+
 from sklearn.svm import LinearSVC
 
-import idc
-from classify import ClassifyTest
-from rff import RandomFourierFeature
-import pinfo
-from ckm import get_idc_colors
+from syllabus import Task
+
+from randomfeatures import RandomFourierFeature
+from tester import ClassifyTest, IDCDataset, PATIENTS
 
 
-def train(dataset):
-    timer = pinfo.Task()
+def train(dataset, task):
+
+    task.reset()
+    task.set_info(name="RFF SVC", desc="Computing RFF SVC Classifier")
+
     rfsvm = LinearSVC()
     rfsvm.fit(dataset.data, dataset.classes)
-    timer.stop("RFF SVC Computed", rfsvm)
+
+    task.done("RFF SVC Computed")
 
     return rfsvm
 
 
-def run(ptrain=0.01, ptest=0.1, fdim=10000, ntrain=-25, ntest=25, n=20, kernel="G"):
+def run(
+        ptrain=0.01, ptest=0.1,
+        fdim=10000,
+        ntrain=-25, ntest=25,
+        n=20, knn=False,
+        kernel="G"):
 
-    timer = pinfo.Task("Random Fourier Feature Support Vector Classifier")
-    rff = RandomFourierFeature(int(n), int(fdim), kernel)
-    ckm = get_idc_colors(int(n))
+    div.div(
+        '- -', BOLD,
+        label='Random Fourier Feature Support Vector Classifier')
+    table.table(list(map(list, zip(*[
+        ['ptrain', ptrain],
+        ['ptest', ptest],
+        ['fdim', fdim],
+        ['knn', knn],
+        ['n', n],
+        ['kernel', kernel],
+        ['ntrain', ntrain],
+        ['ntest', ntest]
+    ]))))
 
-    dataset = idc.IDCDataset(
-        idc.PATIENTS[:int(ntrain)],
-        p=float(ptrain), feature=ckm.map, transform=rff.transform)
-    test_dataset = idc.IDCDataset(
-        idc.PATIENTS[-int(ntest):],
-        p=float(ptest), feature=ckm.map, transform=rff.transform)
-    tester = ClassifyTest(test_dataset.data, test_dataset.classes)
+    main = Task(
+        name='RFF',
+        desc="Random Fourier Feature Support Vector Classifier")
 
+    rff = RandomFourierFeature(
+        7500, 10,
+        kernel='G', task=main.subtask("RFF"))
+
+    params = {'p': float(ptrain), 'transform': rff.transform}
+    """
+    if knn:
+        ckm = get_idc_colors(int(n))
+        params['feature'] = ckm.map
+    """
+    # Load datasets
+    dataset = IDCDataset(
+        PATIENTS[:int(ntrain)],
+        task=main.subtask("test data"), **params)
+    test_dataset = IDCDataset(
+        PATIENTS[-int(ntest):],
+        task=main.subtask("training data"), **params)
+    # Make tester
+    tester = ClassifyTest(
+        test_dataset.data, test_dataset.classes,
+        'Classification experiment on new patients')
+    # Debug tester
+    debugtester = ClassifyTest(
+        dataset.data, dataset.classes,
+        'Classification verification on training data')
+    """
+    # Train model
     rfsvm = train(dataset)
-    tester.loss(rfsvm)
-    tester.save()
 
-    debugtester = ClassifyTest(dataset.data, dataset.classes)
-    debugtester.loss(rfsvm)
+    # Tester
+    tester.loss(rfsvm, task=manager)
 
-    timer.stop("Program finished.")
+    # Debug tester
+    debugtester.loss(rfsvm, task=manager)
+
+    manager.done("Program finished.")
+    """
 
 
 if __name__ == "__main__":
