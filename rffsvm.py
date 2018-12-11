@@ -78,10 +78,10 @@ def run(
     rfsvm = train(dataset, main.subtask())
 
     # Tester
-    tester.loss(rfsvm, task=manager)
+    tester.loss(rfsvm, task=main)
 
     # Debug tester
-    debugtester.loss(rfsvm, task=manager)
+    debugtester.loss(rfsvm, task=main)
 
     manager.done("Program finished.")
 
