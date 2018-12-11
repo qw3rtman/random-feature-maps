@@ -90,11 +90,9 @@ def run(
         raise Exception("Unknown feature type")
 
     params = {
-        'p': float(ptrain),
         'transform': rf.transform,
         'cores': None if cores is None else int(cores)
     }
-
     if knn:
         ckm = get_idc_colors(int(n))
         params['feature'] = ckm.map
@@ -102,10 +100,10 @@ def run(
     # Load datasets
     dataset = IDCDataset(
         PATIENTS[:int(ntrain)],
-        task=main.subtask("test data"), **params)
+        task=main.subtask("test data"), p=float(ptrain), **params)
     test_dataset = IDCDataset(
         PATIENTS[-int(ntest):],
-        task=main.subtask("training data"), **params)
+        task=main.subtask("training data"), p=float(ptest), **params)
     # Make tester
     tester = ClassifyTest(
         test_dataset.data, test_dataset.classes,

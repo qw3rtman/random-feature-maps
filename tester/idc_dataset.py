@@ -49,7 +49,8 @@ class IDCDataset:
 
     def __init__(
             self, patients,
-            feature=None, transform=None, cores=None, p=1, task=None):
+            feature=None, transform=None,
+            cores=None, p=1, task=None):
 
         self.transform = transform
         self.feature = feature
@@ -94,9 +95,7 @@ class IDCDataset:
             img = img.reshape([-1])
 
         try:
-            return (
-                img if self.transform is None
-                else self.transform(img))
+            return img if self.transform is None else self.transform(img)
         except ValueError:
             return None
 

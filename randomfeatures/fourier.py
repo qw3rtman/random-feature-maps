@@ -3,6 +3,7 @@
 
 import numpy as np
 from syllabus import Task
+import multiprocessing
 
 from .sample import KERNELS, sample, sample_1d
 
@@ -35,6 +36,9 @@ class RandomFourierFeature:
             raise Exception('Invalid Kernel')
         self.kernel = kernel
 
+        self.new(task)
+
+    def new(self, task):
         if task is not None:
             task = Task()
         task.reset()
@@ -51,6 +55,7 @@ class RandomFourierFeature:
         """Create a d->D fourier random feature"""
 
         self.b = np.random.uniform(0, 2 * np.pi, self.D)
+
         if self.kernel == 'G':
             random_vectors = [
                 np.random.normal(0, 1, self.d) for _ in range(self.D)]
