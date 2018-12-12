@@ -29,7 +29,8 @@ LABELS = {
     'tp': 'True Positive',
     'fn': 'False Negative',
     'fp': 'False Positive',
-    'const_plus': 'Relative Improvement over Constant'
+    'const_perf': 'Constant Classifier Baseline',
+    'const_plus': 'Relative Improvement over Constant',
 }
 
 
@@ -93,7 +94,8 @@ class ClassifyTest:
             'incorrect': incorrect,
             'correct': correct,
             'perr': perr,
-            'const_plus': (const - perr) / const
+            'const_perf': const,
+            'const_plus': (const - perr) / const,
         })
 
         return error
@@ -113,8 +115,8 @@ class ClassifyTest:
 
         if task is not None:
             task = Task()
-        task.reset(name='Classification Test', desc=self.desc)
-        task.set_info(name='Classification Test', desc=self.desc)
+        task.reset(name='Tester', desc=self.desc)
+        task.set_info(name='Tester', desc=self.desc)
 
         # Predict
         if preprocess is not None:

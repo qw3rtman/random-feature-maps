@@ -13,6 +13,7 @@ from functools import partial
 
 BASE_PATH = os.path.join(os.getcwd(), 'IDC_regular_ps50_idx5')
 PATIENTS = os.listdir(BASE_PATH)
+PATIENTS.sort()
 
 
 def reducer(data, task=None):
@@ -62,7 +63,7 @@ class IDCDataset:
 
         self.data, self.classes = task.pool(
             partial(self.load_patient, p=p), patients,
-            reducer=reducer, name='Image Loader', recursive=False,
+            reducer=reducer, name='Loader', recursive=False,
             cores=cores)
 
         task.done(
@@ -136,7 +137,7 @@ class IDCDataset:
             task = Task()
         task.reset()
         task.set_info(
-            name='Patient Loader',
+            name='Loader',
             desc='Loading Patient {p}'.format(p=patient))
         task.info('Loading patient {p}...'.format(p=patient))
 

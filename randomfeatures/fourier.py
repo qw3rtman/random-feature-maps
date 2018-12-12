@@ -3,7 +3,6 @@
 
 import numpy as np
 from syllabus import Task
-import multiprocessing
 
 from .sample import KERNELS, sample, sample_1d
 
