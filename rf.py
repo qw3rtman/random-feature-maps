@@ -26,7 +26,8 @@ Dependencies
 
 Usage
 -----
-Run the module with python rf.py arg1=value arg2=value etc.
+Run the module with python rf.py arg1=value arg2=value etc., where parameters
+are passed as keyword arguments joined by '=' and separated by spaces.
 
 Parameter  Default  Description
 -----------------------------------------------------------
