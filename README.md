@@ -1,5 +1,5 @@
 ## Fast Random Kernelized Features
-*Extending Support Vector Machine Classification for High Dimensional IDC Classification*
+*Support Vector Machine Classification for High-Dimensional IDC Dataset*
 
 ## About
 * [Presentation](https://github.com/qw3rtman/rf/blob/master/presentation.pdf)
