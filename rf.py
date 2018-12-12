@@ -34,13 +34,13 @@ Parameter  Default  Description
 ptrain     0.01     Percent of training images to use
 ptest      0.1      Percent of test images to use
 fdim       5000     Feature space dimensionality
-knn        False    Use Color K Means?
+knn        False    Use color k-means?
 k          5        Number of means to use
 kernel     G        Kernel type ("G", "L", or "C")
 ntrain     -25      Number of patients used for training
 ntest      25       Number of patients used for testing
 cores      8        Number of cores (processes) to use
-ftype      F        type of feature to use ("F" or "B")
+ftype      F        Type of feature to use ("F" or "B")
 
 References
 ----------

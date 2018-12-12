@@ -1,25 +1,18 @@
-# Fast Random Kernelized Features
-##### Extending Support Vector Machine Classification for High Dimensional IDC Classification
+## Fast Random Kernelized Features
+*Support Vector Machine Classification for High-Dimensional IDC Dataset*
 
 ## About
-* [Presentation](https://github.com/qw3rtman/rf/blob/master/presentation.py)
-* [Paper (todo)]()
+* [Presentation](https://github.com/qw3rtman/rf/blob/master/presentation.pdf)
+* Paper (in-progress)
 
 Random feature maps provide low-dimensional kernel approximations, thereby accelerating the training of support vector machines for large-scale datasets. Through a process of dimensionality reduction via k-means clustering, lifting via a random feature map, and subsequent linear SVM classification in this feature space, we outperform standard Gaussian kernel SVM on the high-dimensional invasive ductal carcinoma dataset (7500 dimensions) in both accuracy and speed. We explore applying two random maps (random Fourier features and random binning features) and experiment with different pre-processing methods such as k-means clustering, HSV transform, and histogram of gradients.
 
 ## Authors
-Tianshu Huang | Nimit Kalra
+[Tianshu Huang](http://tianshu.io/) | [Nimit Kalra](https://nimit.io/)
 --- | ---
 <tianshu.huang@utexas.edu> | <nimit@utexas.edu>
 Department of Electrical and Computer Engineering | Department of Computer Science
 University of Texas at Austin | University of Texas at Austin
-
-## Dependencies
-* numpy
-* scikit-learn
-* scikit-image
-* print (https://github.com/thetianshuhuang/print)
-* syllabus (https://github.com/thetianshuhuang/syllabus)
 
 ## Usage
 Run the module with ```python rf.py arg1=value arg2=value ...```, where parameters are passed as keyword arguments joined by '=' and separated by spaces.
@@ -29,13 +22,13 @@ Parameter |  Default | Description
 ptrain | 0.01 | Percent of training images to use
 ptest | 0.1 | Percent of test images to use
 fdim | 5000 | Feature space dimensionality
-knn | False | Use Color K Means?
+knn | False | Use Color k-means?
 k | 5 | Number of means to use
 kernel | G | Kernel type ("G", "L", or "C")
 ntrain | -25 | Number of patients used for training
 ntest | 25 | Number of patients used for testing
 cores | 8 | Number of cores (processes) to use
-ftype | F | type of feature to use ("F" or "B")
+ftype | F | Type of feature to use ("F" or "B")
 
 The terminal output is mirrored to the file ```results_<command line args>.txt```.
 
@@ -57,7 +50,7 @@ Output file ```results_ptrain=0.1_ptest=1_fdim=2500.txt``` of ``` python rf.py p
     +---------+-----+------------------------------------------------------------+
     |fdim     |2500 |Feature space dimensionality (default=5000)                 |
     +---------+-----+------------------------------------------------------------+
-    |knn      |False|Use Color K Means? (default=False)                          |
+    |knn      |False|Use Color k-means? (default=False)                          |
     +---------+-----+------------------------------------------------------------+
     |k        |5    |Number of means to use (default=5)                          |
     +---------+-----+------------------------------------------------------------+
@@ -69,7 +62,7 @@ Output file ```results_ptrain=0.1_ptest=1_fdim=2500.txt``` of ``` python rf.py p
     +---------+-----+------------------------------------------------------------+
     |cores    |8    |Number of cores (processes) to use (8 available) (default=8)|
     +---------+-----+------------------------------------------------------------+
-    |ftype    |F    |type of feature to use ("F" or "B") (default=F)             |
+    |ftype    |F    |Type of feature to use ("F" or "B") (default=F)             |
     +---------+-----+------------------------------------------------------------+
 
 
@@ -129,6 +122,13 @@ Output file ```results_ptrain=0.1_ptest=1_fdim=2500.txt``` of ``` python rf.py p
 [213.03s] <RF> Program finished.
 ```
 
+## Dependencies
+* numpy
+* scikit-learn
+* scikit-image
+* [print](https://github.com/thetianshuhuang/print)
+* [syllabus](https://github.com/thetianshuhuang/syllabus)
+
 ## References
 [1] Ali Rahimi and Benjamin Recht. "Random Features for Large-Scale Kernel
     Machines." Advances in Neural Information Processing Systems. 2008.
@@ -143,7 +143,7 @@ Output file ```results_ptrain=0.1_ptest=1_fdim=2500.txt``` of ``` python rf.py p
     Learning. Vol. 2011. No. 2. 2011.
 
 [4] Janowczyk, Andrew. "Invasive Ductal Carcinoma Identification Dataset."
-    http://www.andrewjanowczyk.com/deep-learning/.
+    [http://www.andrewjanowczyk.com/deep-learning/](http://www.andrewjanowczyk.com/deep-learning/).
 
 [5] Pedregosa, F. and Varoquaux, G. and Gramfort, A. and Michel, V.
     and Thirion, B. and Grisel, O. and Blondel, M. and Prettenhofer, P.
