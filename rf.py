@@ -34,7 +34,7 @@ ptrain     0.01     Percent of training images to use
 ptest      0.1      Percent of test images to use
 fdim       5000     Feature space dimensionality
 knn        False    Use Color K Means?
-n          5        Number of means to use
+k          5        Number of means to use
 kernel     G        Kernel type ("G", "L", or "C")
 ntrain     -25      Number of patients used for training
 ntest      25       Number of patients used for testing
@@ -69,6 +69,7 @@ from syllabus import Task
 from randomfeatures import CKM
 from config import RF_PARAMS
 from helpers import train, make_feature, make_datasets
+from tester import IDCDataset, PATIENTS
 
 
 if __name__ == "__main__":
@@ -93,8 +94,8 @@ if __name__ == "__main__":
 
     # Generate color map if flag set
     if args.get('knn'):
-        ckm = CKM(args.get('n'), IDCDataset(PATIENTS, p=0.01))
-        idim = args.get('n')
+        ckm = CKM(args.get('k'), IDCDataset(PATIENTS, p=0.01))
+        idim = args.get('k')
     else:
         idim = 7500
 
