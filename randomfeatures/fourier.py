@@ -4,6 +4,7 @@
 import numpy as np
 from syllabus import Task
 
+from .raw_array import make_raw
 from .sample import KERNELS, sample, sample_1d
 
 
@@ -16,6 +17,11 @@ class RandomFourierFeature:
         Input space dimension
     D : int
         Feature space dimension
+    W : RawArray or None
+        If not None, used as the transformation matrix W instead of
+        generating a new matrix
+    b : RawArray or None
+        If not None, used as the offset coefficients b
     kernel : char
         Kernel to use; 'G', 'L', or 'C'
 
@@ -25,7 +31,7 @@ class RandomFourierFeature:
         Machines"
     """
 
-    def __init__(self, d, D, kernel='G', task=None):
+    def __init__(self, d, D, W=None, b=None, kernel='G', task=None):
 
         self.d = d
         self.D = D
@@ -35,13 +41,23 @@ class RandomFourierFeature:
             raise Exception('Invalid Kernel')
         self.kernel = kernel
 
-        self.new(task)
+        if W is None or b is None:
+            self.__new(task)
+        else:
+            self.__load(W, b)
 
-    def new(self, task):
-        if task is not None:
-            task = Task()
-        task.reset()
-        task.set_info(name='Random Fourier Feature', desc=self.__str__())
+    def __load(self, W, b):
+        """Load from existing RawArrays"""
+
+        self.W = np.frombuffer(W, dtype=np.float32).reshape([self.D, self.d])
+        self.b = np.frombuffer(b, dtype=np.float32)
+
+    def __new(self, task):
+        """Create new W and b"""
+
+        if task is None:
+            task = Task(started=False)
+        task.run(name='Random Fourier Feature', desc=self.__str__())
 
         # Create feature
         self.create()
@@ -49,6 +65,24 @@ class RandomFourierFeature:
         task.done(
             "{desc} created"
             .format(desc=self.__str__()), self.W, self.b)
+
+    def mp_package(self):
+        """Package into a multiprocessing-ready RawArray
+
+        Returns
+        -------
+        (int, int, np.array, np.array)
+            [0] input dimension (d)
+            [1] output dimension (D)
+            [2] W matrix (shape=(D, d))
+            [3] b matrix (shape=(D))
+        """
+
+        if not hasattr(self, 'W_raw') or not hasattr(self, 'b_raw'):
+            self.W_raw_np, self.W_raw = make_raw(self.W)
+            self.b_raw_np, self.b_raw = make_raw(self.b)
+
+        return (self.d, self.D, self.W_raw, self.b_raw)
 
     def create(self):
         """Create a d->D fourier random feature"""

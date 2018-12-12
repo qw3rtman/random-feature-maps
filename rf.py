@@ -101,16 +101,18 @@ if __name__ == "__main__":
         idim = 7500
 
     # Make random feature
-    rf = make_feature(idim=idim, task=main,
-                      **args.subdict('ftype', 'kernel', 'fdim', 'cores'))
+    tgen, targs = make_feature(
+        idim=idim, task=main,
+        **args.subdict('ftype', 'kernel', 'fdim', 'cores'))
 
     # Load datasets
     [dataset,
      test_dataset,
      tester,
      debugtester] = make_datasets(
-        rf.transform, **args.subdict('cores', 'ntrain', 'ptrain', 'ptest'),
-        feature=ckm.map if args.get('knn') else None, main=main)
+        tgen=tgen, targs=targs,
+        feature=ckm.map if args.get('knn') else None, main=main,
+        **args.subdict('cores', 'ntrain', 'ptrain', 'ptest'))
 
     # Train model
     rfsvm = train(dataset, main.subtask())

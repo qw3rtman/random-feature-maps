@@ -114,9 +114,8 @@ class ClassifyTest:
         """
 
         if task is not None:
-            task = Task()
-        task.reset(name='Tester', desc=self.desc)
-        task.set_info(name='Tester', desc=self.desc)
+            task = Task(started=False)
+        task.run(name='Tester', desc=self.desc)
 
         # Predict
         if preprocess is not None:

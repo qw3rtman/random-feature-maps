@@ -16,6 +16,132 @@ PATIENTS = os.listdir(BASE_PATH)
 PATIENTS.sort()
 
 
+def load_image(path, feature=None, transform=None):
+    """Load a single image
+
+    Parameters
+    ----------
+    path : str
+        Filepath to load the image from
+    feature : np.array (shape=(50,50,3)) -> np.array (shape=(-1)) or None
+        Feature map to use; if None, the feature map is computed by reshaping
+        the array into a vector
+    transform : np.array (shape=(-1)) -> np.array (shape=(-1)) or None
+        Image transformation to apply after the feature map
+
+    Returns
+    -------
+    np.array (shape=(D))
+        One dimensional feature vector
+    """
+
+    img = mpimg.imread(path)
+
+    if img.shape[0] != 50 or img.shape[1] != 50 or img.shape[2] != 3:
+        return None
+
+    if feature is not None:
+        img = feature(img)
+    else:
+        img = img.reshape([-1])
+
+    try:
+        return img if transform is None else transform(img)
+    except ValueError:
+        return None
+
+
+def load_images(path, p=1, feature=None, transform=None):
+    """Load images from a directory
+
+    Parameters
+    ----------
+    path : str
+        Filepath to load images from
+    p : float
+        Proportion of images to load (rounds up)
+    feature : np.array (shape=(50,50,3)) -> np.array (shape=(-1)) or None
+        Feature map to use; if None, the feature map is computed by reshaping
+        the array into a vector
+    transform : np.array (shape=(-1)) -> np.array (shape=(-1)) or None
+        Image transformation to apply after the feature map
+
+    Returns
+    -------
+    np.array (shape=(N,D))
+        Images squished into a single vector, then concatenated
+    """
+
+    images = os.listdir(path)
+    images = random.sample(images, math.ceil(len(images) * p))
+
+    loaded = [
+        load_image(
+            os.path.join(path, img),
+            feature=feature, transform=transform)
+        for img in images]
+
+    return np.array([x for x in loaded if x is not None])
+
+
+def load_patient(args):
+    """Load a patient
+
+    Parameters
+    ----------
+    args : [str, Task, array]
+        [0] patient to load
+        [1] task to register under
+        [2] [float, class, mixed type[], function]
+            [0] proportion of samples to load
+            [1] feature generator class
+            [2] feature arguments
+            [3] image transform
+    """
+
+    # Unpacking
+    patient, task = args
+    p, tgen, targs, feature = ARGS_COMMON
+
+    # Set up task
+    if task is None:
+        task = Task(started=False)
+    task.run(name='Loader', desc='Loading Patient {p}'.format(p=patient))
+
+    # Set up feature transform
+    if tgen is not None:
+        transform = tgen(*targs).transform
+    else:
+        transform = None
+
+    # Config: pass in p, feature, transform
+    load_args = {
+        'p': p,
+        'feature': feature,
+        'transform': transform
+    }
+
+    try:
+        class_0 = load_images(
+            os.path.join(BASE_PATH, patient, '0'), **load_args)
+        class_1 = load_images(
+            os.path.join(BASE_PATH, patient, '1'), **load_args)
+
+        classes = np.concatenate([
+            np.zeros(class_0.shape[0], dtype=np.int8),
+            np.ones(class_1.shape[0], dtype=np.int8)])
+        data = np.concatenate([class_0, class_1])
+
+        task.done("loaded patient {p}".format(p=patient), data, classes)
+        return (data, classes)
+
+    except Exception as e:
+        task.error(
+            "error loading patient {p}: {e}".format(p=patient, e=e))
+        task.done("could not load patient {p}".format(p=patient))
+        return (None, None)
+
+
 def reducer(data, task=None):
 
     d = data[0][0]
@@ -31,6 +157,14 @@ def reducer(data, task=None):
     return (d, c)
 
 
+ARGS_COMMON = []
+
+
+def pinit(*args):
+    global ARGS_COMMON
+    ARGS_COMMON = args
+
+
 class IDCDataset:
     """Invasive Ductile Carcinoma Dataset
 
@@ -38,8 +172,12 @@ class IDCDataset:
     ----------
     patients : str[]
         List of patients to load
-    feature : np.array->np.array
+    feature : np.array -> np.array
         Feature transform; if None, no transform is applied
+    tgen : Class
+        generator class for the feature transform
+    targs : T[]
+        list of args to pass to fgen
     cores : int
         Number of cores to use
     p : float
@@ -50,113 +188,19 @@ class IDCDataset:
 
     def __init__(
             self, patients,
-            feature=None, transform=None,
+            tgen=None, targs=None, feature=None,
             cores=None, p=1, task=None):
 
-        self.transform = transform
-        self.feature = feature
-
         if task is None:
-            task = Task()
-        task.reset(name='IDC Dataset', desc='Loading Images...')
-        task.set_info(name='IDC Dataset', desc='Loading Images...')
+            task = Task(started=False)
+        task.run(name='IDC Dataset', desc='Loading Images...')
 
         self.data, self.classes = task.pool(
-            partial(self.load_patient, p=p), patients,
-            reducer=reducer, name='Loader', recursive=False,
-            cores=cores)
+            load_patient, patients,
+            shared_args=[p, tgen, targs, feature], shared_init=pinit,
+            reducer=reducer, name='Loader', recursive=False, cores=cores)
 
         task.done(
             "{n} images ({p}%) sampled from {k} patients"
             .format(n=self.classes.shape[0], k=len(patients), p=p * 100),
             self.data, self.classes)
-
-    def load_image(self, path):
-        """Load a single image
-
-        Parameters
-        ----------
-        path : str
-            Filepath to load the image from
-
-        Returns
-        -------
-        np.array (shape=(D))
-            One dimensional feature vector
-        """
-
-        img = mpimg.imread(path)
-
-        if img.shape[0] != 50 or img.shape[1] != 50 or img.shape[2] != 3:
-            return None
-
-        if self.feature is not None:
-            img = self.feature(img)
-        else:
-            img = img.reshape([-1])
-
-        try:
-            return img if self.transform is None else self.transform(img)
-        except ValueError:
-            return None
-
-    def load_images(self, path, p=1):
-        """Load images from a directory
-
-        Parameters
-        ----------
-        path : str
-            Filepath to load images from
-        p : float
-            Proportion of images to load (rounds up)
-
-        Returns
-        -------
-        np.array (shape=(N,D))
-            Images squished into a single vector, then concatenated
-        """
-
-        images = os.listdir(path)
-        images = random.sample(images, math.ceil(len(images) * p))
-
-        loaded = [self.load_image(os.path.join(path, img)) for img in images]
-        return np.array([x for x in loaded if x is not None])
-
-    def load_patient(self, patient, task=None, p=1):
-        """Load a patient
-
-        Parameters
-        ----------
-        patient : str
-            patient to load
-        task : Task
-            task to register under
-        """
-
-        if task is None:
-            task = Task()
-        task.reset()
-        task.set_info(
-            name='Loader',
-            desc='Loading Patient {p}'.format(p=patient))
-        task.info('Loading patient {p}...'.format(p=patient))
-
-        try:
-            class_0 = self.load_images(
-                os.path.join(BASE_PATH, patient, '0'), p=p)
-            class_1 = self.load_images(
-                os.path.join(BASE_PATH, patient, '1'), p=p)
-
-            classes = np.concatenate([
-                np.zeros(class_0.shape[0], dtype=np.int8),
-                np.ones(class_1.shape[0], dtype=np.int8)])
-            data = np.concatenate([class_0, class_1])
-
-            task.done("loaded patient {p}".format(p=patient), data, classes)
-            return (data, classes)
-
-        except Exception as e:
-            task.error(
-                "error loading patient {p}: {e}".format(p=patient, e=e))
-            task.done("could not load patient {p}".format(p=patient))
-            return (None, None)
