@@ -18,8 +18,8 @@ University of Texas at Austin | University of Texas at Austin
 * numpy
 * scikit-learn
 * scikit-image
-* print (https://github.com/thetianshuhuang/print)
-* syllabus (https://github.com/thetianshuhuang/syllabus)
+* [print](https://github.com/thetianshuhuang/print)
+* [syllabus](https://github.com/thetianshuhuang/syllabus)
 
 ## Usage
 Run the module with ```python rf.py arg1=value arg2=value ...```, where parameters are passed as keyword arguments joined by '=' and separated by spaces.
