@@ -21,7 +21,7 @@ Dependencies
 * numpy
 * scikit-learn
 * scikit-image
-* print (https://github.com/thetianshuhuang/syllabus)
+* print (https://github.com/thetianshuhuang/print)
 * syllabus (https://github.com/thetianshuhuang/syllabus)
 
 Usage
