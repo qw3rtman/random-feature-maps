@@ -73,10 +73,14 @@ from helpers import train, make_feature, make_trainset, make_testset
 from tester import IDCDataset, PATIENTS
 
 
+LOG_FILE_DIR = 'results'
+
 if __name__ == "__main__":
 
     # Set log file
-    putil.LOG_FILE = 'results_' + '_'.join(sys.argv[1:]) + '.txt'
+    import os
+    LOG_FILE_PATH = os.path.join(LOG_FILE_DIR, '_'.join(sys.argv[1:]))
+    putil.LOG_FILE = LOG_FILE_PATH + '.txt'
 
     # Print out header
     div.div('- -', BOLD, label='Random Feature Support Vector Classifier')
@@ -107,8 +111,8 @@ if __name__ == "__main__":
         **args.subdict('ftype', 'kernel', 'fdim', 'cores'))
 
     # Load dataset
-    dataset, tester = make_trainset(
-        transform=rand_ft.transform,
+    dataset, validation_tester = make_trainset(
+        transform=rand_ft,
         feature=ckm.map if args.get('knn') else None, main=main,
         **args.subdict('cores', 'ntrain', 'ptrain'))
 
@@ -116,13 +120,26 @@ if __name__ == "__main__":
     rfsvm = train(dataset, main.subtask())
 
     # Tester
-    test_dataset, validation_tester = make_testset(
-        transform=rand_ft.transform,
+    test_dataset, tester = make_testset(
+        transform=rand_ft,
         feature=ckm.map if args.get('knn') else None, main=main,
         **args.subdict('cores', 'ntest', 'ptest'))
-    tester.loss(rfsvm, task=main)
 
-    # Debug tester
+    # Run testers
+    tester.loss(rfsvm, task=main)
     validation_tester.loss(rfsvm, task=main)
 
+    # Save as JSON
+    if os.path.exists(LOG_FILE_PATH + '.json'):
+        main.acc_join()
+        main.warn(
+            "Specified log file path already exists. "
+            "\"_1\" will be appended to end of file.")
+        main.acc_join()
+        if input('Overwrite? (Y/N) ') == 'Y':
+            main.save(LOG_FILE_PATH + '.json')
+    else:
+        main.save(LOG_FILE_PATH + '.json')
+
+    main.acc_join()
     main.done(desc="Program finished.")

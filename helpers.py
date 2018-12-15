@@ -60,11 +60,15 @@ def make_feature(
     """
 
     if ftype == 'F':
-        return RandomFourierFeature(
-            idim, fdim, kernel=kernel, task=task.subtask())
+        return (
+            RandomFourierFeature,
+            RandomFourierFeature(
+                idim, fdim, kernel=kernel, task=task.subtask()).mp_package())
     elif ftype == 'B':
-        return RandomBinningFeature(
-            idim, fdim, cores=cores, task=task.subtask())
+        return (
+            RandomBinningFeature,
+            RandomBinningFeature(
+                idim, fdim, cores=cores, task=task.subtask()).mp_package())
     else:
         raise Exception("Unknown feature type {f}".format(f=ftype))
 
@@ -88,17 +92,11 @@ def make_trainset(
         Task to register dataset creation under
     """
 
-    kwargs = {
-        'transform': transform,
-        'cores': cores,
-        'feature': feature,
-    }
-
     # Load dataset
     main.print("Loading Training Data:")
     dataset = IDCDataset(
-        PATIENTS[:ntrain],
-        task=main.subtask(), p=ptrain, **kwargs)
+        PATIENTS[:ntrain], cores=cores, feature=feature, process=True,
+        task=main.subtask(), p=ptrain, transform=transform)
 
     # debug tester
     debugtester = ClassifyTest(
@@ -127,18 +125,11 @@ def make_testset(
         Task to register dataset creation under
     """
 
-    kwargs = {
-        'transform': transform,
-        'cores': cores,
-        'feature': feature,
-    }
-
     # Load dataset
-
     main.print("Loading Testing Data:")
     test_dataset = IDCDataset(
-        PATIENTS[-ntest:],
-        task=main.subtask(), p=ptest, **kwargs)
+        PATIENTS[-ntest:], transform=transform, cores=cores, feature=feature,
+        task=main.subtask(), p=ptest, process=True)
     # Make tester
     tester = ClassifyTest(
         test_dataset.data, test_dataset.classes,

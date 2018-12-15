@@ -3,3 +3,4 @@
 IDC_*/
 *__pycache__*
 results*.txt
+results/*

@@ -131,6 +131,33 @@ def load_patient(patient, p=1, transform=None, feature=None, task=None):
         return (None, None)
 
 
+SHARED_ARGS = {}
+
+
+def pinit(tgen, targs, p, feature):
+
+    global SHARED_ARGS
+    SHARED_ARGS['transform'] = tgen(*targs).transform
+    SHARED_ARGS['p'] = p
+    SHARED_ARGS['feature'] = feature
+
+
+def proc_wrapper(args):
+
+    patient, task = args
+    global SHARED_ARGS
+    return load_patient(
+        patient, p=SHARED_ARGS['p'],
+        transform=SHARED_ARGS['transform'],
+        feature=SHARED_ARGS['feature'],
+        task=task)
+
+
+def proc_reducer(args):
+    data, task = args
+    return reducer(data, task)
+
+
 def reducer(data, task=None):
 
     d = data[0][0]
@@ -156,10 +183,13 @@ class IDCDataset:
         List of patients to load
     feature : np.array -> np.array
         Feature transform; if None, no transform is applied
-    tgen : Class
-        generator class for the feature transform
-    targs : T[]
-        list of args to pass to fgen
+    transform : np.array -> np.array or [tgen, targs]
+        Transformation to apply. This should be a function in threading
+        mode; in process mode, this should be a tuple.
+        [0] : Class
+            generator class for the feature transform
+        [1] : T[]
+            list of args to pass to fgen
     cores : int
         Number of cores to use
     p : float
@@ -171,16 +201,35 @@ class IDCDataset:
     def __init__(
             self, patients,
             transform=None, feature=None,
-            cores=None, p=1, task=None):
+            cores=None, p=1, task=None, process=False):
 
         if task is None:
             task = Task()
         task.start(name='IDC Dataset', desc='Loading Images...')
 
-        self.data, self.classes = task.pool(
-            load_patient, patients, process=False,
-            shared_kwargs={'transform': transform, 'feature': feature, 'p': p},
-            reducer=reducer, name='Loader', recursive=False, threads=cores)
+        if process:
+            self.data, self.classes = task.pool(
+                proc_wrapper, patients,
+                process=True,
+                shared_args=[transform[0], transform[1], p, feature],
+                shared_init=pinit,
+                name='Loader',
+                recursive=True,
+                reducer=proc_reducer,
+                cores=cores)
+
+        else:
+            self.data, self.classes = task.pool(
+                load_patient, patients,
+                process=False,
+                shared_kwargs={
+                    'transform': transform,
+                    'feature': feature,
+                    'p': p},
+                reducer=reducer,
+                name='Loader',
+                recursive=False,
+                threads=cores)
 
         task.done(
             self.data, self.classes,
