@@ -69,7 +69,7 @@ from syllabus import Task
 
 from randomfeatures import CKM
 from config import RF_PARAMS
-from helpers import train, make_feature, make_datasets
+from helpers import train, make_feature, make_trainset, make_testset
 from tester import IDCDataset, PATIENTS
 
 
@@ -91,7 +91,8 @@ if __name__ == "__main__":
 
     # Run program
     div.div('-', BR + BLUE, label='Main Program')
-    main = Task(name='RF', desc="Random Feature Support Vector Classifier")
+    main = Task(
+        name='RF', desc="Random Feature Support Vector Classifier").start()
 
     # Generate color map if flag set
     if args.get('knn'):
@@ -101,25 +102,27 @@ if __name__ == "__main__":
         idim = 7500
 
     # Make random feature
-    tgen, targs = make_feature(
+    rand_ft = make_feature(
         idim=idim, task=main,
         **args.subdict('ftype', 'kernel', 'fdim', 'cores'))
 
-    # Load datasets
-    [dataset,
-     test_dataset,
-     tester,
-     debugtester] = make_datasets(
-        tgen=tgen, targs=targs,
+    # Load dataset
+    dataset, tester = make_trainset(
+        transform=rand_ft.transform,
         feature=ckm.map if args.get('knn') else None, main=main,
-        **args.subdict('cores', 'ntrain', 'ptrain', 'ptest'))
+        **args.subdict('cores', 'ntrain', 'ptrain'))
 
     # Train model
     rfsvm = train(dataset, main.subtask())
 
     # Tester
+    test_dataset, validation_tester = make_testset(
+        transform=rand_ft.transform,
+        feature=ckm.map if args.get('knn') else None, main=main,
+        **args.subdict('cores', 'ntest', 'ptest'))
     tester.loss(rfsvm, task=main)
 
     # Debug tester
-    debugtester.loss(rfsvm, task=main)
-    main.done("Program finished.")
+    validation_tester.loss(rfsvm, task=main)
+
+    main.done(desc="Program finished.")

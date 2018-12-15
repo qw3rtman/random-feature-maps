@@ -114,8 +114,8 @@ class ClassifyTest:
         """
 
         if task is not None:
-            task = Task(started=False)
-        task.run(name='Tester', desc=self.desc)
+            task = Task()
+        task.start(name='Tester', desc=self.desc)
 
         # Predict
         if preprocess is not None:
@@ -129,10 +129,10 @@ class ClassifyTest:
 
         # Print stats
         for key, value in self.error.items():
-            task.info(
+            task.print(
                 "{label}: {val}".format(label=LABELS[key], val=value))
 
-        task.done('Done running tests.')
-        task.info(
+        task.done(desc='Done running tests.')
+        task.print(
             'Time per test: {t}s'
             .format(t=task.runtime() / self.error['total']))

@@ -9,7 +9,6 @@ import matplotlib.image as mpimg
 
 from syllabus import Task
 
-from functools import partial
 
 BASE_PATH = os.path.join(os.getcwd(), 'IDC_regular_ps50_idx5')
 PATIENTS = os.listdir(BASE_PATH)
@@ -84,7 +83,7 @@ def load_images(path, p=1, feature=None, transform=None):
     return np.array([x for x in loaded if x is not None])
 
 
-def load_patient(args):
+def load_patient(patient, p=1, transform=None, feature=None, task=None):
     """Load a patient
 
     Parameters
@@ -99,20 +98,10 @@ def load_patient(args):
             [3] image transform
     """
 
-    # Unpacking
-    patient, task = args
-    p, tgen, targs, feature = ARGS_COMMON
-
     # Set up task
     if task is None:
-        task = Task(started=False)
-    task.run(name='Loader', desc='Loading Patient {p}'.format(p=patient))
-
-    # Set up feature transform
-    if tgen is not None:
-        transform = tgen(*targs).transform
-    else:
-        transform = None
+        task = Task()
+    task.start(name='Loader', desc='Loading Patient {p}'.format(p=patient))
 
     # Config: pass in p, feature, transform
     load_args = {
@@ -132,13 +121,13 @@ def load_patient(args):
             np.ones(class_1.shape[0], dtype=np.int8)])
         data = np.concatenate([class_0, class_1])
 
-        task.done("loaded patient {p}".format(p=patient), data, classes)
+        task.done(data, classes, desc="loaded patient {p}".format(p=patient))
         return (data, classes)
 
     except Exception as e:
         task.error(
             "error loading patient {p}: {e}".format(p=patient, e=e))
-        task.done("could not load patient {p}".format(p=patient))
+        task.done(desc="could not load patient {p}".format(p=patient))
         return (None, None)
 
 
@@ -146,6 +135,7 @@ def reducer(data, task=None):
 
     d = data[0][0]
     c = data[0][1]
+
     for i, j in data[1:]:
         try:
             d = np.concatenate([d, i])
@@ -155,14 +145,6 @@ def reducer(data, task=None):
                 task.error('Failed to concatenate input data: ' + str(e))
 
     return (d, c)
-
-
-ARGS_COMMON = []
-
-
-def pinit(*args):
-    global ARGS_COMMON
-    ARGS_COMMON = args
 
 
 class IDCDataset:
@@ -188,19 +170,19 @@ class IDCDataset:
 
     def __init__(
             self, patients,
-            tgen=None, targs=None, feature=None,
+            transform=None, feature=None,
             cores=None, p=1, task=None):
 
         if task is None:
-            task = Task(started=False)
-        task.run(name='IDC Dataset', desc='Loading Images...')
+            task = Task()
+        task.start(name='IDC Dataset', desc='Loading Images...')
 
         self.data, self.classes = task.pool(
-            load_patient, patients,
-            shared_args=[p, tgen, targs, feature], shared_init=pinit,
-            reducer=reducer, name='Loader', recursive=False, cores=cores)
+            load_patient, patients, process=False,
+            shared_kwargs={'transform': transform, 'feature': feature, 'p': p},
+            reducer=reducer, name='Loader', recursive=False, threads=cores)
 
         task.done(
-            "{n} images ({p}%) sampled from {k} patients"
-            .format(n=self.classes.shape[0], k=len(patients), p=p * 100),
-            self.data, self.classes)
+            self.data, self.classes,
+            desc="{n} images ({p}%) sampled from {k} patients".format(
+                n=self.classes.shape[0], k=len(patients), p=p * 100))

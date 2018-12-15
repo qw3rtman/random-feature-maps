@@ -56,15 +56,14 @@ class RandomFourierFeature:
         """Create new W and b"""
 
         if task is None:
-            task = Task(started=False)
-        task.run(name='Random Fourier Feature', desc=self.__str__())
+            task = Task()
+        task.start(name='Random Fourier Feature', desc=self.__str__())
 
         # Create feature
         self.create()
 
         task.done(
-            "{desc} created"
-            .format(desc=self.__str__()), self.W, self.b)
+            self.W, self.b, desc="{desc} created".format(desc=self.__str__()))
 
     def mp_package(self):
         """Package into a multiprocessing-ready RawArray
@@ -79,8 +78,8 @@ class RandomFourierFeature:
         """
 
         if not hasattr(self, 'W_raw') or not hasattr(self, 'b_raw'):
-            self.W_raw_np, self.W_raw = make_raw(self.W)
-            self.b_raw_np, self.b_raw = make_raw(self.b)
+            self.W_raw = make_raw(self.W)
+            self.b_raw = make_raw(self.b)
 
         return (self.d, self.D, self.W_raw, self.b_raw)
 

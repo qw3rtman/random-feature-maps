@@ -22,12 +22,12 @@ def train(dataset, task):
         Trained model
     """
 
-    t = task.subtask(name="RF SVC", desc="Computing RF SVC Classifier")
+    t = task.start(name="RF SVC", desc="Computing RF SVC Classifier")
 
     rfsvm = LinearSVC()
     rfsvm.fit(dataset.data, dataset.classes)
 
-    t.done("RFF SVC Computed")
+    t.done(desc="RFF SVC Computed")
 
     return rfsvm
 
@@ -60,23 +60,19 @@ def make_feature(
     """
 
     if ftype == 'F':
-        return (
-            RandomFourierFeature,
-            RandomFourierFeature(
-                idim, fdim, kernel=kernel, task=task.subtask()).mp_package())
+        return RandomFourierFeature(
+            idim, fdim, kernel=kernel, task=task.subtask())
     elif ftype == 'B':
-        return (
-            RandomBinningFeature,
-            RandomBinningFeature(
-                idim, fdim, task=task.subtask(), cores=cores).mp_package())
+        return RandomBinningFeature(
+            idim, fdim, cores=cores, task=task.subtask())
     else:
         raise Exception("Unknown feature type {f}".format(f=ftype))
 
 
-def make_datasets(
-        cores=None, feature=None, tgen=None, targs=None,
-        ntrain=-25, ntest=25, ptrain=0.01, ptest=0.1, main=None):
-    """Create datasets and testers
+def make_trainset(
+        cores=None, feature=None, transform=None,
+        ntrain=-25, ptrain=0.01, main=None):
+    """Create training dataset and validiation tester
 
     Parameters
     ----------
@@ -86,10 +82,45 @@ def make_datasets(
         Feature map; if None, no feature map is used
     ntrain : int
         Number of patients to train on
-    ntest : int
-        Number of patients to test on
     ptrain : float
         Proportion of training data to use
+    main : Task
+        Task to register dataset creation under
+    """
+
+    kwargs = {
+        'transform': transform,
+        'cores': cores,
+        'feature': feature,
+    }
+
+    # Load dataset
+    main.print("Loading Training Data:")
+    dataset = IDCDataset(
+        PATIENTS[:ntrain],
+        task=main.subtask(), p=ptrain, **kwargs)
+
+    # debug tester
+    debugtester = ClassifyTest(
+        dataset.data, dataset.classes,
+        'Classification verification on training data')
+
+    return dataset, debugtester
+
+
+def make_testset(
+        cores=None, feature=None, transform=None,
+        ntest=25, ptest=0.1, main=None):
+    """Create testing dataset and tester
+
+    Parameters
+    ----------
+    cores : int
+        Number of processes to use
+    feature : function (float[50][50][3] -> float[])
+        Feature map; if None, no feature map is used
+    ntest : int
+        Number of patients to test on
     ptest : float
         Proportion of test data to use
     main : Task
@@ -97,26 +128,20 @@ def make_datasets(
     """
 
     kwargs = {
-        'tgen': tgen,
-        'targs': targs,
+        'transform': transform,
         'cores': cores,
         'feature': feature,
     }
 
-    # Load datasets
-    dataset = IDCDataset(
-        PATIENTS[:ntrain],
-        task=main.subtask("test data"), p=ptrain, **kwargs)
+    # Load dataset
+
+    main.print("Loading Testing Data:")
     test_dataset = IDCDataset(
         PATIENTS[-ntest:],
-        task=main.subtask("training data"), p=ptest, **kwargs)
+        task=main.subtask(), p=ptest, **kwargs)
     # Make tester
     tester = ClassifyTest(
         test_dataset.data, test_dataset.classes,
         'Classification experiment on new patients')
-    # Debug tester
-    debugtester = ClassifyTest(
-        dataset.data, dataset.classes,
-        'Classification verification on training data')
 
-    return [dataset, test_dataset, tester, debugtester]
+    return test_dataset, tester

@@ -28,4 +28,4 @@ def make_raw(array):
     array_np = np.frombuffer(raw_array, dtype=np.float32).reshape(array.shape)
     np.copyto(array_np, array)
 
-    return array_np, raw_array
+    return raw_array
