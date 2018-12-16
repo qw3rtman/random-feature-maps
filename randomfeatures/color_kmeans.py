@@ -23,8 +23,7 @@ class CKM:
 
         if task is None:
             task = Task()
-        task.reset()
-        task.set_info(name='CKM', desc="Color K Means Clustering")
+        task.start(name='CKM', desc="Color K Means Clustering")
 
         self.n = n
 
@@ -38,7 +37,7 @@ class CKM:
 
         self.kmeans = KMeans(n_clusters=n).fit(knndata).cluster_centers_
 
-        task.done("Generated K Means model (n={n})".format(n=self.n))
+        task.done(desc="Generated K Means model (n={n})".format(n=self.n))
 
     def cluster(self, color):
         """Find which cluster a color belongs to
