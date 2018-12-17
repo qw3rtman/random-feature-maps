@@ -3,7 +3,7 @@
 
 ## About
 * [Presentation](https://github.com/qw3rtman/rf/blob/master/presentation.pdf)
-* Paper (in-progress)
+* [Paper](https://github.com/qw3rtman/rf/blob/master/presentation.pdf)
 
 Random feature maps provide low-dimensional kernel approximations, thereby accelerating the training of support vector machines for large-scale datasets. Through a process of dimensionality reduction via k-means clustering, lifting via a random feature map, and subsequent linear SVM classification in this feature space, we outperform standard Gaussian kernel SVM on the high-dimensional invasive ductal carcinoma dataset (7500 dimensions) in both accuracy and speed. We explore applying two random maps (random Fourier features and random binning features) and experiment with different pre-processing methods such as k-means clustering, HSV transform, and histogram of gradients.
 
