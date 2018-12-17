@@ -50,17 +50,19 @@ References
     and Strong Parallelizability." Proceedings of the 22nd ACM SIGKDD
     International Conference on Knowledge Discovery and Data Mining. ACM,
     2016.
-[3] Netzer, Yuval, et al. "Reading Digits in Natural Images with Unsupervised
-    Feature Learning." NIPS Workshop on Deep Learning and Unsupervised Feature
-    Learning. Vol. 2011. No. 2. 2011.
-[4] Janowczyk, Andrew. "Invasive Ductal Carcinoma Identification Dataset."
+[3] Janowczyk, Andrew. "Invasive Ductal Carcinoma Identification Dataset."
     http://www.andrewjanowczyk.com/deep-learning/.
-[5] Pedregosa, F. and Varoquaux, G. and Gramfort, A. and Michel, V.
+[4] Pedregosa, F. and Varoquaux, G. and Gramfort, A. and Michel, V.
     and Thirion, B. and Grisel, O. and Blondel, M. and Prettenhofer, P.
     and Weiss, R. and Dubourg, V. and Vanderplas, J. and Passos, A. and
     Cournapeau, D. and Brucher, M. and Perrot, M. and Duchesnay, E.
     "Scikit-learn: Machine Learning in Python." Journal of Machine Learning
     Research. JMLR, 2011.
+[5] van der Walt, Stefan, Schonberger, Johannes L., Nunez-Iglesias, Juan,
+    Boulogne, Franc¸ois, Warner, Joshua D., Yager, Neil, Gouillart, Emmanuelle,
+    Yu, Tony, and the scikit-image contributors. scikit-image: image processing
+    in Python. PeerJ, 2:e453, 6 2014. ISSN 2167-8359. doi: 10.7717/peerj.453.
+    URL http://dx.doi.org/10.7717/peerj.453.
 """
 
 import sys
@@ -100,10 +102,26 @@ if __name__ == "__main__":
 
     # Generate color map if flag set
     if args.get('knn'):
-        ckm = CKM(args.get('k'), IDCDataset(PATIENTS, p=0.01))
+        ckm = CKM(
+            args.get('k'),
+            IDCDataset(PATIENTS, p=0.01, process=True, task=main.subtask()))
         idim = args.get('k')
+        feature = ckm.map
+    elif args.get('hsv'):
+        from skimage import color
+        idim = 7500
+
+        def feature(image):
+            return np.reshape(color.rgb2hsv(image), [-1])
+    elif args.get('hue'):
+        from skimage import color
+        idim = 7500
+
+        def feature(image):
+            return np.reshape(color.rgb2hsv(image)[:, :, 0], [-1])
     else:
         idim = 7500
+        feature = None
 
     # Make random feature
     rand_ft = make_feature(

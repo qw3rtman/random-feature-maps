@@ -138,14 +138,10 @@ Output file ```results_ptrain=0.1_ptest=1_fdim=2500.txt``` of ``` python rf.py p
     International Conference on Knowledge Discovery and Data Mining. ACM,
     2016.
 
-[3] Netzer, Yuval, et al. "Reading Digits in Natural Images with Unsupervised
-    Feature Learning." NIPS Workshop on Deep Learning and Unsupervised Feature
-    Learning. Vol. 2011. No. 2. 2011.
-
-[4] Janowczyk, Andrew. "Invasive Ductal Carcinoma Identification Dataset."
+[3] Janowczyk, Andrew. "Invasive Ductal Carcinoma Identification Dataset."
     [http://www.andrewjanowczyk.com/deep-learning/](http://www.andrewjanowczyk.com/deep-learning/).
 
-[5] Pedregosa, F. and Varoquaux, G. and Gramfort, A. and Michel, V.
+[4] Pedregosa, F. and Varoquaux, G. and Gramfort, A. and Michel, V.
     and Thirion, B. and Grisel, O. and Blondel, M. and Prettenhofer, P.
     and Weiss, R. and Dubourg, V. and Vanderplas, J. and Passos, A. and
     Cournapeau, D. and Brucher, M. and Perrot, M. and Duchesnay, E.

@@ -137,7 +137,10 @@ SHARED_ARGS = {}
 def pinit(tgen, targs, p, feature):
 
     global SHARED_ARGS
-    SHARED_ARGS['transform'] = tgen(*targs).transform
+    if tgen is not None and targs is not None:
+        SHARED_ARGS['transform'] = tgen(*targs).transform
+    else:
+        SHARED_ARGS['transform'] = None
     SHARED_ARGS['p'] = p
     SHARED_ARGS['feature'] = feature
 
@@ -200,12 +203,15 @@ class IDCDataset:
 
     def __init__(
             self, patients,
-            transform=None, feature=None,
+            transform=[None, None], feature=None,
             cores=None, p=1, task=None, process=False):
 
         if task is None:
             task = Task()
         task.start(name='IDC Dataset', desc='Loading Images...')
+
+        if transform is None:
+            transform = [None, None]
 
         if process:
             self.data, self.classes = task.pool(

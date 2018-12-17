@@ -1,39 +1,45 @@
 
+"""Kernel SVM Baseline Test"""
+
+from print import *
+from syllabus import Task
+from helpers import make_trainset, make_testset
 from sklearn.svm import SVC
 
-import idc
-from classify import ClassifyTest
-import pinfo
+
+LOG_FILE_DIR = 'results'
 
 
-def train(dataset):
-    timer = pinfo.Task()
-    ksvm = SVC(gamma='auto')
+def train(dataset, task):
+    task.start()
+    ksvm = SVC()
     ksvm.fit(dataset.data, dataset.classes)
-    timer.stop("Kernel SVM Computed", ksvm)
+    task.done(desc="Kernel SVM Computed")
 
     return ksvm
 
 
 def run(ptrain=0.01, ptest=0.1, ntrain=-25, ntest=25):
 
-    timer = pinfo.Task("Kernel SVM")
+    import os
+    putil.LOG_FILE = os.path.join(LOG_FILE_DIR, 'ksvm.txt')
 
-    dataset = idc.IDCDataset(idc.PATIENTS[:int(ntrain)], p=float(ptrain))
-    test_dataset = idc.IDCDataset(idc.PATIENTS[-int(ntest):], p=float(ptest))
-    tester = ClassifyTest(test_dataset.data, test_dataset.classes)
+    main = Task(
+        name="Kernel SVM",
+        desc='Kernel Support Vector Machine Baseline').start()
 
-    ksvm = train(dataset)
-    tester.loss(ksvm)
+    dataset, validation_tester = make_trainset(
+        cores=None, main=main, ptrain=float(ptrain))
+    testset, tester = make_testset(
+        cores=None, main=main, ptest=float(ptest))
 
-    debugtester = ClassifyTest(dataset.data, dataset.classes)
-    debugtester.loss(ksvm)
+    ksvm = train(dataset, main.subtask(name="Training KSVM"))
 
-    timer.stop("Program finished.")
+    tester.loss(ksvm, task=main)
+    validation_tester.loss(ksvm, task=main)
+
+    main.done("Program finished.")
 
 
 if __name__ == "__main__":
-    import sys
-    from util import argparse
-    args, kwargs = argparse(sys.argv[1:])
-    run(**kwargs)
+    run(ptrain=0.2, ptest=1, ntrain=-25, ntest=25)
