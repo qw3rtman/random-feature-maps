@@ -132,18 +132,22 @@ Output file ```results_ptrain=0.1_ptest=1_fdim=2500.txt``` of ``` python rf.py p
 ## References
 [1] Ali Rahimi and Benjamin Recht. "Random Features for Large-Scale Kernel
     Machines." Advances in Neural Information Processing Systems. 2008.
+
 [2] Wu, Lingfei, et al. "Revisiting Random Binning Features: Fast Convergence
     and Strong Parallelizability." Proceedings of the 22nd ACM SIGKDD
     International Conference on Knowledge Discovery and Data Mining. ACM,
     2016.
+
 [3] Janowczyk, Andrew. "Invasive Ductal Carcinoma Identification Dataset."
     http://www.andrewjanowczyk.com/deep-learning/.
+
 [4] Pedregosa, F. and Varoquaux, G. and Gramfort, A. and Michel, V.
     and Thirion, B. and Grisel, O. and Blondel, M. and Prettenhofer, P.
     and Weiss, R. and Dubourg, V. and Vanderplas, J. and Passos, A. and
     Cournapeau, D. and Brucher, M. and Perrot, M. and Duchesnay, E.
     "Scikit-learn: Machine Learning in Python." Journal of Machine Learning
     Research. JMLR, 2011.
+
 [5] van der Walt, Stefan, Schonberger, Johannes L., Nunez-Iglesias, Juan,
     Boulogne, Franc¸ois, Warner, Joshua D., Yager, Neil, Gouillart, Emmanuelle,
     Yu, Tony, and the scikit-image contributors. scikit-image: image processing
