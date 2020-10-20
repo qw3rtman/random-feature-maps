@@ -1,8 +1,8 @@
-## [Fast Random Kernelized Features](https://nimit.io/rf_paper.pdf)
+## [Fast Random Kernelized Features](https://nimit.io/randomfeatures.pdf)
 *Support Vector Machine Classification for High-Dimensional IDC Dataset*
 
 ## About
-* [Paper](https://nimit.io/rf_paper.pdf)
+* [Paper](https://nimit.io/randomfeatures.pdf)
 
 Random feature maps provide low-dimensional kernel approximations, thereby accelerating the training of support vector machines for large-scale datasets. Through a process of dimensionality reduction via k-means clustering, lifting via a random feature map, and subsequent linear SVM classification in this feature space, we outperform standard Gaussian kernel SVM on the high-dimensional invasive ductal carcinoma dataset (7500 dimensions) in both accuracy and speed. We explore applying two random maps (random Fourier features and random binning features) and experiment with different pre-processing methods such as k-means clustering, HSV transform, and histogram of gradients.
 
